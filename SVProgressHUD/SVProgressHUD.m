@@ -15,7 +15,7 @@
 @property (nonatomic, retain) UIImageView *imageView;
 @property (nonatomic, retain) UIActivityIndicatorView *spinnerView;
 
-- (void)showInView:(UIView *)view status:(NSString *)string networkIndicator:(BOOL)show posY:(CGFloat)posY;
+- (void)showInView:(UIView *)view status:(NSString *)string posY:(CGFloat)posY;
 - (void)setStatus:(NSString *)string;
 - (void)dismiss;
 - (void)dismissWithStatus:(NSString *)string error:(BOOL)error;
@@ -58,16 +58,11 @@ static SVProgressHUD *sharedView = nil;
 
 
 + (void)showInView:(UIView*)view status:(NSString*)string {
-	[SVProgressHUD showInView:view status:string networkIndicator:YES];
+	[SVProgressHUD showInView:view status:string posY:-1];
 }
 
 
-+ (void)showInView:(UIView*)view status:(NSString*)string networkIndicator:(BOOL)show {
-	[SVProgressHUD showInView:view status:string networkIndicator:show posY:-1];
-}
-
-
-+ (void)showInView:(UIView*)view status:(NSString*)string networkIndicator:(BOOL)show posY:(CGFloat)posY {
++ (void)showInView:(UIView*)view status:(NSString*)string posY:(CGFloat)posY {
 	
     if(!view) {
         UIWindow* keyWindow = [UIApplication sharedApplication].keyWindow;
@@ -83,7 +78,7 @@ static SVProgressHUD *sharedView = nil;
 	if(posY == -1)
 		posY = floor(CGRectGetHeight(view.bounds)/2)-100;
 
-	[[SVProgressHUD sharedView] showInView:view status:string networkIndicator:show posY:posY];
+	[[SVProgressHUD sharedView] showInView:view status:string posY:posY];
 }
 
 
@@ -160,15 +155,10 @@ static SVProgressHUD *sharedView = nil;
 }
 
 
-- (void)showInView:(UIView*)view status:(NSString*)string networkIndicator:(BOOL)show posY:(CGFloat)posY {
+- (void)showInView:(UIView*)view status:(NSString*)string posY:(CGFloat)posY {
 	
 	if(fadeOutTimer != nil)
 		[fadeOutTimer invalidate], [fadeOutTimer release], fadeOutTimer = nil;
-	
-	if(show)
-		[UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
-	else
-		[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 	
 	self.imageView.hidden = YES;
 	
@@ -202,8 +192,6 @@ static SVProgressHUD *sharedView = nil;
 
 - (void)dismiss {
 	
-	[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
-	
 	[UIView animateWithDuration:0.15
 						  delay:0
 						options:UIViewAnimationCurveEaseIn | UIViewAnimationOptionAllowUserInteraction
@@ -216,8 +204,6 @@ static SVProgressHUD *sharedView = nil;
 
 
 - (void)dismissWithStatus:(NSString*)string error:(BOOL)error {
-	
-	[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
 	
 	if(error)
 		self.imageView.image = [UIImage imageNamed:@"SVProgressHUD.bundle/error.png"];
