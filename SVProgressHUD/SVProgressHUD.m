@@ -8,14 +8,25 @@
 #import "SVProgressHUD.h"
 #import <QuartzCore/QuartzCore.h>
 
+#pragma mark -
+#pragma mark ----- SVProgressMask -----
+
+@interface SVProgressMask : UIView
+- (id)initForView:(UIView*)view;
+@end 
+
+#pragma mark -
+#pragma mark ----- SVProgressHUD -----
+
 @interface SVProgressHUD ()
 
 @property (nonatomic, retain) NSTimer *fadeOutTimer;
 @property (nonatomic, retain) UILabel *stringLabel;
 @property (nonatomic, retain) UIImageView *imageView;
 @property (nonatomic, retain) UIActivityIndicatorView *spinnerView;
+@property (nonatomic, retain) SVProgressMask *maskView;
 
-- (void)showInView:(UIView *)view status:(NSString *)string posY:(CGFloat)posY;
+- (void)showInView:(UIView *)view status:(NSString *)string posY:(CGFloat)posY mask:(BOOL)mask;
 - (void)setStatus:(NSString *)string;
 - (void)dismiss;
 - (void)dismissWithStatus:(NSString *)string error:(BOOL)error;
@@ -27,7 +38,7 @@
 
 @implementation SVProgressHUD
 
-@synthesize fadeOutTimer, stringLabel, imageView, spinnerView;
+@synthesize fadeOutTimer, stringLabel, imageView, spinnerView, maskView;
 
 static SVProgressHUD *sharedView = nil;
 
@@ -58,11 +69,19 @@ static SVProgressHUD *sharedView = nil;
 
 
 + (void)showInView:(UIView*)view status:(NSString*)string {
-	[SVProgressHUD showInView:view status:string posY:-1];
+  [SVProgressHUD showInView:view status:string posY:-1 mask:YES];
 }
 
 
 + (void)showInView:(UIView*)view status:(NSString*)string posY:(CGFloat)posY {
+  [SVProgressHUD showInView:view status:string posY:posY mask:YES];
+}
+
++ (void)showInView:(UIView*)view status:(NSString*)string mask:(BOOL)mask {
+  [SVProgressHUD showInView:view status:string posY:-1 mask:mask];
+}
+
++ (void)showInView:(UIView*)view status:(NSString*)string posY:(CGFloat)posY mask:(BOOL)mask {
 	
     if(!view) {
         UIWindow* keyWindow = [UIApplication sharedApplication].keyWindow;
@@ -78,7 +97,7 @@ static SVProgressHUD *sharedView = nil;
 	if(posY == -1)
 		posY = floor(CGRectGetHeight(view.bounds)/2)-100;
 
-	[[SVProgressHUD sharedView] showInView:view status:string posY:posY];
+  [[SVProgressHUD sharedView] showInView:view status:string posY:posY mask:mask];
 }
 
 
@@ -103,7 +122,7 @@ static SVProgressHUD *sharedView = nil;
 #pragma mark Instance Methods
 
 - (void)dealloc {
-	
+  self.maskView = nil; 
 	if(fadeOutTimer != nil)
 		[fadeOutTimer invalidate], [fadeOutTimer release], fadeOutTimer = nil;
 	
@@ -155,7 +174,7 @@ static SVProgressHUD *sharedView = nil;
 }
 
 
-- (void)showInView:(UIView*)view status:(NSString*)string posY:(CGFloat)posY {
+- (void)showInView:(UIView*)view status:(NSString*)string posY:(CGFloat)posY mask:(BOOL)mask {
 	
 	if(fadeOutTimer != nil)
 		[fadeOutTimer invalidate], [fadeOutTimer release], fadeOutTimer = nil;
@@ -168,6 +187,10 @@ static SVProgressHUD *sharedView = nil;
 	if(![sharedView isDescendantOfView:view]) {
 		sharedView.layer.opacity = 0;
 		[view addSubview:sharedView];
+    if ( mask ) {
+      self.maskView = [[[SVProgressMask alloc] initForView:view] autorelease];
+      [view addSubview:self.maskView];
+    }
 	}
 	
 	if(sharedView.layer.opacity != 1) {
@@ -199,7 +222,13 @@ static SVProgressHUD *sharedView = nil;
 						 self.layer.transform = CATransform3DScale(CATransform3DMakeTranslation(0, 0, 0), 0.8, 0.8, 1.0);
 						 self.layer.opacity = 0;
 					 }
-					 completion:^(BOOL finished){ if(self.layer.opacity == 0) [self removeFromSuperview]; }];
+					 completion:^(BOOL finished){
+             if(self.layer.opacity == 0){
+               [self.maskView removeFromSuperview];
+               [self removeFromSuperview]; 
+             }
+           }
+  ];
 }
 
 
@@ -216,6 +245,8 @@ static SVProgressHUD *sharedView = nil;
 	
 	[self.spinnerView stopAnimating];
     
+  [self.maskView removeFromSuperview];
+
 	if(fadeOutTimer != nil)
 		[fadeOutTimer invalidate], [fadeOutTimer release], fadeOutTimer = nil;
 	
@@ -280,3 +311,19 @@ static SVProgressHUD *sharedView = nil;
 }
 
 @end
+
+#pragma mark -
+#pragma mark ----- SVProgressMask -----
+
+@implementation SVProgressMask
+
+- (id)initForView:(UIView*)view {
+  if ( (self = [super init]) ) {
+    self.frame = view.bounds;
+    self.backgroundColor = [UIColor clearColor];
+    self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+  }
+  return self;
+}
+
+@end 

@@ -10,7 +10,7 @@ SVProgressHUD features:
 * very simple singleton convenience methods
 * optional loading, success and error status messages
 * automatic centering based on device type, orientation, and optional @posY@ parameter
-* talks with @setNetworkActivityIndicatorVisible@ (can be disabled)
+* automatic masking any touch operations, ana optional @mask@ parameter
 
 h2. Installation
 
@@ -29,8 +29,8 @@ SVProgressHUD is created as a singleton (i.e. it doesn't need to be explictely a
 + (void)show;
 + (void)showInView:(UIView*)view;
 + (void)showInView:(UIView*)view status:(NSString*)string;
-+ (void)showInView:(UIView*)view status:(NSString*)string networkIndicator:(BOOL)b;
-+ (void)showInView:(UIView*)view status:(NSString*)string networkIndicator:(BOOL)b posY:(CGFloat)posY;
++ (void)showInView:(UIView*)view status:(NSString*)string mask:(BOOL)b;
++ (void)showInView:(UIView*)view status:(NSString*)string posY:(CGFloat)posY mask:(BOOL)b;
 </pre>
 
 You dismiss it using one of these:

@@ -17,6 +17,8 @@ posY:(CGFloat)			-> the vertical position of the HUD (default is (viewHeight/2)-
 + (void)showInView:(UIView*)view;
 + (void)showInView:(UIView*)view status:(NSString*)string;
 + (void)showInView:(UIView*)view status:(NSString*)string posY:(CGFloat)posY;
++ (void)showInView:(UIView*)view status:(NSString*)string mask:(BOOL)mask;
++ (void)showInView:(UIView*)view status:(NSString*)string posY:(CGFloat)posY mask:(BOOL)mask;
 
 + (void)setStatus:(NSString*)string; // change the HUD loading status while it's showing
 
