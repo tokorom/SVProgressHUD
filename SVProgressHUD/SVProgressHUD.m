@@ -244,8 +244,6 @@ static SVProgressHUD *sharedView = nil;
 	[self setStatus:string];
 	
 	[self.spinnerView stopAnimating];
-    
-  [self.maskView removeFromSuperview];
 
 	if(fadeOutTimer != nil)
 		[fadeOutTimer invalidate], [fadeOutTimer release], fadeOutTimer = nil;
@@ -326,4 +324,7 @@ static SVProgressHUD *sharedView = nil;
   return self;
 }
 
+- (void)touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event {
+  // mask
+}
 @end 
