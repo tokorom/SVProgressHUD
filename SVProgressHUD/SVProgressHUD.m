@@ -159,7 +159,8 @@ static SVProgressHUD *sharedView = nil;
 	if(stringWidth > hudWidth)
 		hudWidth = ceil(stringWidth/2)*2;
 	
-	self.bounds = CGRectMake(0, 0, hudWidth, 100);
+  UIWindow* keyWindow = [UIApplication sharedApplication].keyWindow;
+	self.bounds = CGRectMake(0, 0, MIN( hudWidth, keyWindow.bounds.size.width ), 100);
 	
 	self.imageView.center = CGPointMake(CGRectGetWidth(self.bounds)/2, 36);
 	
@@ -234,10 +235,13 @@ static SVProgressHUD *sharedView = nil;
 
 - (void)dismissWithStatus:(NSString*)string error:(BOOL)error {
 	
-	if(error)
+  CGFloat displayTime = 0.9;
+	if(error) {
 		self.imageView.image = [UIImage imageNamed:@"SVProgressHUD.bundle/error.png"];
-	else
+    displayTime *= 2;
+  } else {
 		self.imageView.image = [UIImage imageNamed:@"SVProgressHUD.bundle/success.png"];
+  }
 	
 	self.imageView.hidden = NO;
 	
@@ -248,7 +252,7 @@ static SVProgressHUD *sharedView = nil;
 	if(fadeOutTimer != nil)
 		[fadeOutTimer invalidate], [fadeOutTimer release], fadeOutTimer = nil;
 	
-	fadeOutTimer = [[NSTimer scheduledTimerWithTimeInterval:0.9 target:self selector:@selector(dismiss) userInfo:nil repeats:NO] retain];
+	fadeOutTimer = [[NSTimer scheduledTimerWithTimeInterval:displayTime target:self selector:@selector(dismiss) userInfo:nil repeats:NO] retain];
 }
 
 #pragma mark -
